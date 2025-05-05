@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MiniVault</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      color: #222;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 2rem;
+      transition: background 0.3s, color 0.3s;
+    }
+    .dark { background: #111; color: #eee; }
+    h1 { margin-bottom: 1rem; }
+    .box {
+      background: #fff;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      text-align: center;
+    }
+    .dark .box { background: #222; }
+    input[type=range] {
+      width: 100%;
+    }
+    .password {
+      font-size: 1.4rem;
+      margin: 1rem 0;
+      word-break: break-all;
+    }
+    button {
+      padding: 0.6rem 1.2rem;
+      margin: 0.3rem;
+      border: none;
+      border-radius: 6px;
+      background: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover { background: #0055cc; }
+    .toggle {
+      margin-top: 2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔐 MiniVault</h1>
+  <div class="box">
+    <label>Password Length: <span id="lengthVal">16</span></label><br/>
+    <input type="range" id="length" min="6" max="32" value="16" oninput="updateLength()" />
+    <div class="password" id="result">Click Generate</div>
+    <button onclick="generatePassword()">Generate</button>
+    <button onclick="copyPassword()">Copy</button>
+  </div>
+  <div class="toggle" onclick="toggleDark()">🌓 Toggle Dark Mode</div>
+
+  <script>
+    function generatePassword() {
+      const length = document.getElementById("length").value;
+      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+      let password = "";
+      for (let i = 0; i < length; i++) {
+        const rand = Math.floor(Math.random() * charset.length);
+        password += charset[rand];
+      }
+      document.getElementById("result").textContent = password;
+    }
+
+    function copyPassword() {
+      const text = document.getElementById("result").textContent;
+      navigator.clipboard.writeText(text).then(() => {
+        alert("Password copied!");
+      });
+    }
+
+    function toggleDark() {
+      document.body.classList.toggle("dark");
+    }
+
+    function updateLength() {
+      const val = document.getElementById("length").value;
+      document.getElementById("lengthVal").textContent = val;
+    }
+  </script>
+</body>
+</html>
