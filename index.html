@@ -5,6 +5,26 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MiniVault</title>
   <style>
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: radial-gradient(circle at var(--x, 50%) var(--y, 50%), #e0f7fa, transparent 25%),
+                  radial-gradient(circle at calc(100% - var(--x, 50%)) calc(100% - var(--y, 50%)), #ffecb3, transparent 25%),
+                  radial-gradient(circle at 50% 50%, #f3e5f5, transparent 25%);
+      background-size: 300% 300%;
+      animation: moveBackground 15s ease-in-out infinite;
+      z-index: -1;
+      opacity: 0.6;
+      transition: background 0.2s ease-out;
+    }
+
+    @keyframes moveBackground {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
     body {
       font-family: sans-serif;
       background: #f4f4f4;
@@ -60,16 +80,38 @@
   <div class="box">
     <label>Password Length: <span id="lengthVal">16</span></label><br/>
     <input type="range" id="length" min="6" max="32" value="16" oninput="updateLength()" />
+    <div style="text-align: left; margin-top: 1rem;">
+      <label><input type="checkbox" id="lowercase" checked /> Include lowercase</label><br />
+      <label><input type="checkbox" id="uppercase" checked /> Include uppercase</label><br />
+      <label><input type="checkbox" id="numbers" checked /> Include numbers</label><br />
+      <label><input type="checkbox" id="symbols" checked /> Include symbols</label>
+    </div>
     <div class="password" id="result">Click Generate</div>
     <button onclick="generatePassword()">Generate</button>
     <button onclick="copyPassword()">Copy</button>
   </div>
   <div class="toggle" onclick="toggleDark()">🌓 Toggle Dark Mode</div>
+  <div id="copyMsg" style="opacity: 0; transition: opacity 0.5s; margin-top: 1rem;">✅ Password copied!</div>
 
   <script>
     function generatePassword() {
       const length = document.getElementById("length").value;
-      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()_+";
+      const useLower = document.getElementById("lowercase").checked;
+      const useUpper = document.getElementById("uppercase").checked;
+      const useNumbers = document.getElementById("numbers").checked;
+      const useSymbols = document.getElementById("symbols").checked;
+
+      let charset = "";
+      if (useLower) charset += "abcdefghijklmnopqrstuvwxyz";
+      if (useUpper) charset += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+      if (useNumbers) charset += "0123456789";
+      if (useSymbols) charset += "!@#$%^&*()_+";
+
+      if (!charset) {
+        document.getElementById("result").textContent = "Select at least one option.";
+        return;
+      }
+
       let password = "";
       for (let i = 0; i < length; i++) {
         const rand = Math.floor(Math.random() * charset.length);
@@ -81,18 +123,43 @@
     function copyPassword() {
       const text = document.getElementById("result").textContent;
       navigator.clipboard.writeText(text).then(() => {
-        alert("Password copied!");
+        const msg = document.getElementById("copyMsg");
+        msg.style.opacity = 1;
+        setTimeout(() => {
+          msg.style.opacity = 0;
+        }, 2000);
       });
     }
 
     function toggleDark() {
-      document.body.classList.toggle("dark");
+      const isDark = document.body.classList.toggle("dark");
+      localStorage.setItem("darkMode", isDark ? "true" : "false");
     }
+
+    window.onload = function() {
+      if (localStorage.getItem("darkMode") === "true") {
+        document.body.classList.add("dark");
+      }
+    };
 
     function updateLength() {
       const val = document.getElementById("length").value;
       document.getElementById("lengthVal").textContent = val;
     }
+
+    document.addEventListener("mousemove", (e) => {
+      const x = (e.clientX / window.innerWidth) * 100 + "%";
+      const y = (e.clientY / window.innerHeight) * 100 + "%";
+      document.body.style.setProperty("--x", x);
+      document.body.style.setProperty("--y", y);
+    });
+
+    document.addEventListener("click", (e) => {
+      const x = (e.clientX / window.innerWidth) * 100 + "%";
+      const y = (e.clientY / window.innerHeight) * 100 + "%";
+      document.body.style.setProperty("--x", x);
+      document.body.style.setProperty("--y", y);
+    });
   </script>
 </body>
 </html>
